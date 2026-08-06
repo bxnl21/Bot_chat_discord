@@ -3,7 +3,7 @@
 ## Pipeline
 
 - Pull request vào `main`: cài dependency, chạy test, build TypeScript và build Docker image.
-- Push vào `main`: chạy CI và xuất image `ghcr.io/<owner>/<repo>:latest` cùng tag theo commit SHA.
+- Push vào `main`: chạy CI và xuất image `ghcr.io/bxnl21/my-discord-bot:latest` cùng tag theo commit SHA.
 - Tag dạng `v1.2.3`: xuất thêm các image tag `1.2.3` và `1.2`.
 - Có thể chạy thủ công workflow **Publish container** từ GitHub Actions.
 
@@ -26,7 +26,7 @@ docker run -d \
   --name my-discord-bot \
   --restart unless-stopped \
   --env-file .env \
-  ghcr.io/OWNER/REPOSITORY:latest
+  ghcr.io/bxnl21/my-discord-bot:latest
 ```
 
 Nếu package GHCR để private, đăng nhập trước bằng một GitHub token có quyền `read:packages`:
@@ -34,4 +34,3 @@ Nếu package GHCR để private, đăng nhập trước bằng một GitHub tok
 ```bash
 echo "$GHCR_TOKEN" | docker login ghcr.io -u USERNAME --password-stdin
 ```
-

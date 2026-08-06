@@ -16,7 +16,8 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # Repository name "-" is valid on GitHub but invalid as a Docker image name.
+  IMAGE_NAME: bxnl21/my-discord-bot
 
 jobs:
   publish:
@@ -58,4 +59,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
