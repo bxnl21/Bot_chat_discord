@@ -16,8 +16,8 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  # Repository name "-" is valid on GitHub but invalid as a Docker image name.
-  IMAGE_NAME: bxnl21/my-discord-bot
+  # Docker/OCI image names must be lowercase.
+  IMAGE_NAME: bxnl21/bot_chat_discord
 
 jobs:
   publish:
