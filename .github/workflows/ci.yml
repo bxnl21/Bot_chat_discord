@@ -1,45 +1,45 @@
 name: CI
-
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
-
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+permissions: { contents: read }
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Test and build
+  gateway:
+    name: Gateway test and build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high
+      - run: docker build -f apps/gateway/Dockerfile -t gateway:ci .
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
+  worker:
+    name: Worker test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: { python-version: '3.12', cache: pip }
+      - run: pip install -e "apps/worker[dev]"
+      - run: ruff check apps/worker
+      - run: mypy apps/worker/app
+      - run: pytest apps/worker
+      - run: docker build -f apps/worker/Dockerfile -t worker:ci .
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
-      - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
-
-      - name: Compile TypeScript
-        run: npm run build
-
-      - name: Verify production container
-        run: docker build --tag my-discord-bot:ci .
+  compose:
+    name: Validate Compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: cp .env.example .env
+      - run: docker compose config --quiet

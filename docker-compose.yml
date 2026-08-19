@@ -1,0 +1,30 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/gateway/Dockerfile
+    env_file: .env
+    environment:
+      WORKER_URL: http://worker:8000
+      WORKER_TOKEN: ${WORKER_TOKEN}
+      AI_CHANNEL_ID: ${AI_CHANNEL_ID:?AI_CHANNEL_ID must be set in .env}
+      REQUIRE_MENTION: ${REQUIRE_MENTION:-false}
+    depends_on:
+      worker:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    environment:
+      WORKER_TOKEN: ${WORKER_TOKEN}
+      OCR_LANGUAGE: ${OCR_LANGUAGE:-vie+eng}
+      MAX_PDF_PAGES: ${MAX_PDF_PAGES:-30}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped

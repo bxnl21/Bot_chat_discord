@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: Discord Document Worker API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      responses:
+        '200': { description: Healthy }
+  /ready:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Ready }
+  /v1/documents/analyze:
+    post:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: header
+          name: X-Correlation-Id
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '200':
+          description: Analysis result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DocumentAnalysis' }
+        '401': { description: Unauthorized }
+        '422': { description: Invalid document }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }
+  schemas:
+    DocumentAnalysis:
+      type: object
+      required: [fileName, mimeType, text, pageCount, warnings]
+      properties:
+        fileName: { type: string }
+        mimeType: { type: string }
+        text: { type: string }
+        pageCount: { type: [integer, 'null'] }
+        warnings: { type: array, items: { type: string } }

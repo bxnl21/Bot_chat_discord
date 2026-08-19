@@ -1,0 +1,35 @@
+[project]
+name = "discord-document-worker"
+version = "2.0.0"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.116.1",
+  "uvicorn[standard]==0.35.0",
+  "python-multipart==0.0.20",
+  "pydantic-settings==2.10.1",
+  "PyMuPDF==1.26.3",
+  "pytesseract==0.3.13",
+  "Pillow==11.3.0",
+  "pillow-heif==1.1.0"
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.4.1", "pytest-asyncio==1.1.0", "httpx==0.28.1", "ruff==0.12.7", "mypy==1.17.1"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["app"]
+
+[[tool.mypy.overrides]]
+module = ["fitz", "pytesseract"]
+ignore_missing_imports = true
