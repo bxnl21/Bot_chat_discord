@@ -1,35 +1,13 @@
 {
-  "name": "my-discord-bot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "bot-chat-discord",
+  "version": "2.0.0",
+  "private": true,
+  "workspaces": ["apps/gateway"],
   "scripts": {
-    "dev": "tsx src/index.ts",
-    "build": "tsc",
-    "test": "tsx --test src/services/attachmentHandler.test.ts src/services/splitter.test.ts",
-    "start": "node dist/index.js"
+    "dev": "npm run dev --workspace=@bot/gateway",
+    "build": "npm run build --workspace=@bot/gateway",
+    "test": "npm run test --workspace=@bot/gateway",
+    "start": "npm run start --workspace=@bot/gateway"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "engines": {
-    "node": ">=24"
-  },
-  "dependencies": {
-    "@google/genai": "^2.10.0",
-    "@mozilla/readability": "^0.6.0",
-    "discord.js": "^14.26.4",
-    "dotenv": "^17.4.2",
-    "jsdom": "^29.1.1",
-    "mongoose": "^9.7.4",
-    "node-schedule": "^2.1.1"
-  },
-  "devDependencies": {
-    "@types/jsdom": "^28.0.3",
-    "@types/node": "^26.0.0",
-    "@types/node-schedule": "^2.1.8",
-    "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
-  }
+  "engines": { "node": ">=24" }
 }

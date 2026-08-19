@@ -1,36 +1,35 @@
-# CI/CD và triển khai
+# Triển khai Gateway và Worker
 
-## Pipeline
+## Chạy local bằng Docker Compose
 
-- Pull request vào `main`: cài dependency, chạy test, build TypeScript và build Docker image.
-- Push vào `main`: chạy CI và xuất image `ghcr.io/bxnl21/bot_chat_discord:latest` cùng tag theo commit SHA.
-- Tag dạng `v1.2.3`: xuất thêm các image tag `1.2.3` và `1.2`.
-- Có thể chạy thủ công workflow **Publish container** từ GitHub Actions.
-
-## Secrets khi chạy container
-
-Không đưa `.env` vào source hoặc Docker image. Máy chủ chạy bot cần các biến:
-
-```text
-DISCORD_TOKEN
-GEMINI_API_KEY
-MONGO_URI
-AI_CHANNEL_ID       # tùy chọn
-GEMINI_MODEL         # tùy chọn
-```
-
-Ví dụ chạy image đã publish:
+1. Sao chép `.env.example` thành `.env` và điền secret.
+2. Tạo `WORKER_TOKEN` dài, ngẫu nhiên và dùng chung cho hai service.
+3. Chạy:
 
 ```bash
-docker run -d \
-  --name my-discord-bot \
-  --restart unless-stopped \
-  --env-file .env \
-  ghcr.io/bxnl21/bot_chat_discord:latest
+docker compose up --build -d
+docker compose logs -f gateway worker
 ```
 
-Nếu package GHCR để private, đăng nhập trước bằng một GitHub token có quyền `read:packages`:
+Worker chỉ tồn tại trong mạng nội bộ Compose; không publish port ra Internet.
 
-```bash
-echo "$GHCR_TOKEN" | docker login ghcr.io -u USERNAME --password-stdin
-```
+## Container images
+
+- `ghcr.io/bxnl21/bot_chat_discord-gateway:latest`
+- `ghcr.io/bxnl21/bot_chat_discord-worker:latest`
+
+Mỗi push vào `main` chạy test/build cho cả hai service rồi publish hai image trên.
+
+## Biến môi trường
+
+| Biến | Service | Bắt buộc |
+|---|---|---|
+| `DISCORD_TOKEN` | Gateway | Có |
+| `GEMINI_API_KEY` | Gateway | Có |
+| `MONGO_URI` | Gateway | Có |
+| `WORKER_URL` | Gateway | Có |
+| `WORKER_TOKEN` | Cả hai | Có |
+| `AI_CHANNEL_ID` | Gateway | Có; bot chỉ hoạt động trong đúng channel này |
+| `REQUIRE_MENTION` | Gateway | Không; mặc định `false` |
+| `OCR_LANGUAGE` | Worker | Không |
+| `MAX_PDF_PAGES` | Worker | Không |
